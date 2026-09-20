@@ -148,15 +148,15 @@ const fsSource = `
           float keep = hash12(starSeed + vec2(7.7, 3.1));
           float longS = step(keep, 0.38);
           float ext = mix(0.25, 1.0, longS) * (0.6 + 0.8 * rnd2.y);
-          float headEff = headDist * (1.0 + u_speed * 1.8 * ext) + abs(scatter) * 0.18;
-          float tailEff = max(headDist * (1.0 - u_speed * 0.22 * (0.5 + rnd2.x)), rMin) + abs(scatter) * 0.12;
+          float headEff = headDist * (1.0 + u_speed * 1.8 * ext);
+          float tailEff = max(headDist * (1.0 - u_speed * 0.22 * (0.5 + rnd2.x)), rMin);
 
-          vec2 pHead = starDir * headEff;
-          vec2 pTail = starDir * tailEff;
+          vec2 pHead = starDir * headEff + perp * scatter;
+          vec2 pTail = starDir * tailEff + perp * scatter;
           float dLine = distToSegment(uvPix, pTail, pHead);
 
           float rp = max(dot(uvPix, starDir), 0.0);
-          float tS = smoothstep(0.0, 0.12, u_speed);
+          float tS = smoothstep(0.0, 0.045, u_speed);
           float w = mix(1.25, 0.7 + 0.0045 * rp, tS);
           float coreLine = smoothstep(w, 0.0, dLine);
           float haloLine = pow(smoothstep(w * 3.2, 0.0, dLine), 1.5);
@@ -171,7 +171,7 @@ const fsSource = `
           vec3 streakCol = edgeBlue * haloLine * 1.2 * tS + coreLow * coreLine * 1.25;
           streakCol *= brightness * mix(twinkle, 1.0, tS) * headBoost * fadeS * (1.0 + u_speed * 0.42);
 
-          float blend = smoothstep(0.0, 0.12, u_speed);
+          float blend = smoothstep(0.0, 0.045, u_speed);
           vec3 finalStar = mix(starCol * starVal, streakCol, blend);
           starAccum += finalStar;
         }
