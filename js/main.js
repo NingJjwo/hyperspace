@@ -110,7 +110,7 @@
       const REACH = 1.0;
       const q = Math.min(Math.max(progress / REACH, 0.0), 1.0);
 
-      speed = MAX_STRETCH * Math.pow(q, 1.9);
+      speed = MAX_STRETCH * (0.08 + 0.92 * q);
       warpDist += (18.0 + Math.pow(progress, 2.0) * 1250.0) * dt;
       tunnel = 0;
 

@@ -18,6 +18,8 @@ const fsSource = `
   uniform float u_flash;
   uniform float u_singularity;
 
+  const float MAX_STRETCH = 0.18;
+
   float hash12(vec2 p) {
     vec3 p3 = fract(vec3(p.xyx) * 0.1031);
     p3 += dot(p3, p3.yzx + 33.33);
@@ -120,10 +122,10 @@ const fsSource = `
           float rMax = maxRadius;
           float rSpan = rMax - rMin;
           float baseOffset = rnd.y * rSpan;
-          float scatter = (rnd2.x - 0.5) * 70.0;
+          float scatter = (rnd2.x - 0.5) * 18.0;
 
           float travel = mod(baseOffset + u_warp_dist * (1.0 + rnd2.x * 0.8), rSpan);
-          float headDist = rMin + travel + abs(scatter) * 0.2;
+          float headDist = rMin + travel + abs(scatter) * 0.15;
 
           float twSpeed = 1.0 + 3.0 * rnd2.x;
           float twPhase = rnd2.y * 6.28;
@@ -149,25 +151,25 @@ const fsSource = `
           float headEff = headDist * (1.0 + u_speed * 1.8 * ext) + abs(scatter) * 0.18;
           float tailEff = max(headDist * (1.0 - u_speed * 0.22 * (0.5 + rnd2.x)), rMin) + abs(scatter) * 0.12;
 
-          vec2 pHead = starDir * headEff + perp * scatter * 0.4;
-          vec2 pTail = starDir * tailEff + perp * scatter * 0.22;
+          vec2 pHead = starDir * headEff;
+          vec2 pTail = starDir * tailEff;
           float dLine = distToSegment(uvPix, pTail, pHead);
 
           float rp = max(dot(uvPix, starDir), 0.0);
-          float tS = smoothstep(0.0, 0.35, u_speed);
-          float w = mix(1.2, 0.66 + 0.004 * rp, tS);
+          float tS = smoothstep(0.0, 0.12, u_speed);
+          float w = mix(1.25, 0.7 + 0.0045 * rp, tS);
           float coreLine = smoothstep(w, 0.0, dLine);
-          float haloLine = pow(smoothstep(w * 3.8, 0.0, dLine), 1.8);
+          float haloLine = pow(smoothstep(w * 3.2, 0.0, dLine), 1.5);
 
           float proj = clamp(dot(uvPix - pTail, pHead - pTail) / max(dot(pHead - pTail, pHead - pTail), 0.0001), 0.0, 1.0);
-          float headBoost = 0.35 + 0.65 * smoothstep(0.0, 0.4, proj);
-          float fadeS = mix(depthFade, smoothstep(0.0, 0.08, normR) * smoothstep(1.0, 0.94, normR), tS);
+          float headBoost = 0.6 + 0.4 * smoothstep(0.0, 0.35, proj);
+          float fadeS = mix(depthFade, smoothstep(0.0, 0.2, normR) * smoothstep(1.0, 0.9, normR), tS);
 
           vec3 edgeBlue = vec3(0.05, 0.38, 1.00);
           vec3 coreCol = mix(vec3(0.55, 0.95, 1.00), vec3(0.80, 1.00, 0.90), rnd2.x);
           vec3 coreLow = mix(vec3(0.95, 0.98, 1.0), coreCol, tS);
-          vec3 streakCol = edgeBlue * haloLine * 1.15 * tS + coreLow * coreLine * 1.2;
-          streakCol *= brightness * mix(twinkle, 1.0, tS) * headBoost * fadeS * (1.0 + u_speed * 0.32);
+          vec3 streakCol = edgeBlue * haloLine * 1.2 * tS + coreLow * coreLine * 1.25;
+          streakCol *= brightness * mix(twinkle, 1.0, tS) * headBoost * fadeS * (1.0 + u_speed * 0.42);
 
           float blend = smoothstep(0.0, 0.12, u_speed);
           vec3 finalStar = mix(starCol * starVal, streakCol, blend);
