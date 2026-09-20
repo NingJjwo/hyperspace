@@ -49,6 +49,76 @@
 
   const btn = document.getElementById('hyperdrive-btn');
   const btnLabel = document.getElementById('btn-label');
+  const apodImage = document.getElementById('apod-image');
+  const apodLocation = document.getElementById('apod-location');
+  const apodTitle = document.getElementById('apod-title');
+
+  const NASA_IMAGES_URL = 'https://images-api.nasa.gov/search';
+  const SPACE_TOPICS = ['galaxy', 'nebula', 'star cluster', 'constellation', 'deep space'];
+  const SPACE_TITLE_TERMS = /galaxy|galaxies|nebula|supernova|star cluster|globular cluster|constellation|star field|cosmos|universe|astronomical|milky way/i;
+  const NON_SPACE_IMAGE_TERMS = /hearing|congress|senate|committee|meeting|person|portrait|interview|document|press|rover|lander|aircraft|building|school|earthquake|hurricane|weather|crane|crawler|lightning|protection|system|facility|station|launch|rocket|network|complex|antenna|dish|radio telescope|ground station|observatory/i;
+  let pendingApodReady = false;
+
+  function updateSpaceLocation() {
+    const rightAscension = Math.floor(Math.random() * 24);
+    const rightMinutes = Math.floor(Math.random() * 60);
+    const declination = (Math.random() * 180 - 90).toFixed(3);
+    const declinationSign = declination >= 0 ? '+' : '';
+    apodLocation.textContent = `RA ${String(rightAscension).padStart(2, '0')}h${String(rightMinutes).padStart(2, '0')}m | DEC ${declinationSign}${declination}°`;
+  }
+
+  async function loadImage(url, title, date) {
+    await new Promise((resolve, reject) => {
+      apodImage.onload = resolve;
+      apodImage.onerror = reject;
+      apodImage.src = url;
+    });
+    updateSpaceLocation();
+    apodTitle.textContent = title || '';
+  }
+
+  async function loadUniverseImage() {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      const topic = SPACE_TOPICS[Math.floor(Math.random() * SPACE_TOPICS.length)];
+      const params = new URLSearchParams({ q: topic, media_type: 'image', page_size: '100' });
+      const response = await fetch(`${NASA_IMAGES_URL}?${params}`);
+      if (!response.ok) throw new Error(`NASA Images ${response.status}`);
+      const payload = await response.json();
+      const items = payload.collection?.items || [];
+      const validItems = items.filter((candidate) => {
+        const metadata = candidate.data?.[0];
+        const title = metadata?.title || '';
+        const searchableText = `${title} ${metadata?.description || ''} ${metadata?.keywords || ''}`;
+        const imageLink = candidate.links?.find((link) => link.render === 'image' || /\.(jpg|jpeg|png)(\?|$)/i.test(link.href))?.href;
+        return Boolean(imageLink) && SPACE_TITLE_TERMS.test(title) && !NON_SPACE_IMAGE_TERMS.test(searchableText);
+      });
+      const item = validItems[Math.floor(Math.random() * validItems.length)];
+      const imageLink = item?.links?.find((link) => link.render === 'image' || /\.(jpg|jpeg|png)(\?|$)/i.test(link.href))?.href;
+      const metadata = item?.data?.[0];
+      if (imageLink && metadata) {
+        await loadImage(imageLink, metadata.title, metadata.date_created?.slice(0, 10));
+        return;
+      }
+    }
+    throw new Error('NASA Images sin resultado visual tras varios intentos');
+  }
+
+  async function loadSpaceImage(random = false) {
+    try {
+      await loadUniverseImage();
+      if (random) {
+        if (state === 'sublight') {
+          apodImage.classList.add('is-visible');
+        } else {
+          pendingApodReady = true;
+        }
+      }
+    } catch (error) {
+      console.warn('No se pudo cargar una imagen espacial de NASA:', error.message);
+    }
+  }
+
+  loadSpaceImage();
 
   const ENTER_DURATION = 1.2;
 
@@ -65,6 +135,7 @@
       phaseStart = performance.now();
       phaseTime = 0;
       singularity = 0;
+      apodImage.classList.remove('is-visible');
       if (btnLabel) btnLabel.textContent = "SALIR DEL HIPERESPACIO";
       if (btn) {
         btn.classList.add('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
@@ -75,6 +146,8 @@
       phaseTime = 0;
       flash = 1.0;
       singularity = 0;
+      apodImage.classList.remove('is-visible');
+      loadSpaceImage(true);
       if (btnLabel) btnLabel.textContent = "VELOCIDAD DE LA LUZ";
       if (btn) {
         btn.classList.remove('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
@@ -133,6 +206,7 @@
       }
 
       if (progress >= 1.0) {
+        apodImage.classList.remove('is-visible');
         state = 'hyperspace';
         phaseStart = performance.now();
         phaseTime = 0;
@@ -160,6 +234,10 @@
         state = 'sublight';
         speed = 0; tunnel = 0; singularity = 0;
         phaseStart = performance.now();
+        if (pendingApodReady) {
+          pendingApodReady = false;
+          apodImage.classList.add('is-visible');
+        }
       }
     }
 

@@ -10,6 +10,12 @@
 </head>
 <body class="bg-black text-cyan-400">
 <canvas id="hyperspace-canvas"></canvas>
+<img alt="Imagen astronómica del día" id="apod-image">
+
+<div aria-live="polite" id="apod-meta">
+  <div id="apod-location">LAT --.------ | LON --.------</div>
+  <div id="apod-title"></div>
+</div>
 
 <div class="fixed inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 md:p-8" style="padding-top:max(1.5rem, env(safe-area-inset-top)); padding-bottom:max(1.5rem, env(safe-area-inset-bottom));">
   <div class="flex items-center justify-end w-full">
