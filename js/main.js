@@ -49,9 +49,6 @@
 
   const btn = document.getElementById('hyperdrive-btn');
   const btnLabel = document.getElementById('btn-label');
-  const statusText = document.getElementById('status-text');
-  const statusDot = document.getElementById('status-dot');
-  const statusBadge = document.getElementById('status-badge');
 
   const ENTER_DURATION = 1.2;
 
@@ -68,26 +65,26 @@
       phaseStart = performance.now();
       phaseTime = 0;
       singularity = 0;
-      btnLabel.textContent = "SALIR DEL HIPERESPACIO";
-      statusText.textContent = "HIPERESPACIO // ACTIVO";
-      statusDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-300 shadow-[0_0_12px_#38bdf8] animate-ping";
-      statusBadge.classList.add('border-cyan-400', 'bg-cyan-950/80');
-      btn.classList.add('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
+      if (btnLabel) btnLabel.textContent = "SALIR DEL HIPERESPACIO";
+      if (btn) {
+        btn.classList.add('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
+      }
     } else {
       state = 'exiting';
       phaseStart = performance.now();
       phaseTime = 0;
       flash = 1.0;
       singularity = 0;
-      btnLabel.textContent = "VELOCIDAD DE LA LUZ";
-      statusText.textContent = "ESPACIO // SUB-LUZ";
-      statusDot.className = "w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse";
-      statusBadge.classList.remove('border-cyan-400', 'bg-cyan-950/80');
-      btn.classList.remove('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
+      if (btnLabel) btnLabel.textContent = "VELOCIDAD DE LA LUZ";
+      if (btn) {
+        btn.classList.remove('glow-cyan', 'border-cyan-300', 'bg-cyan-950/60');
+      }
     }
   }
 
-  btn.addEventListener('click', toggleHyperdrive);
+  if (btn) {
+    btn.addEventListener('click', toggleHyperdrive);
+  }
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Space') { e.preventDefault(); toggleHyperdrive(); }
   });
