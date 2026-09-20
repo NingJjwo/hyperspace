@@ -56,7 +56,7 @@
   const NASA_IMAGES_URL = 'https://images-api.nasa.gov/search';
   const SPACE_TOPICS = ['galaxy', 'nebula', 'star cluster', 'constellation', 'deep space'];
   const SPACE_TITLE_TERMS = /galaxy|galaxies|nebula|supernova|star cluster|globular cluster|constellation|star field|cosmos|universe|astronomical|milky way/i;
-  const NON_SPACE_IMAGE_TERMS = /hearing|congress|senate|committee|meeting|person|people|portrait|interview|document|press|rover|lander|aircraft|building|school|earthquake|hurricane|weather|crane|crawler|lightning|protection|system|facility|station|launch|rocket|network|complex|antenna|dish|radio telescope|ground station|observatory|program|update|briefing|official|human|astronaut|politician|director|administrator/i;
+  const NON_SPACE_IMAGE_TERMS = /hearing|congress|senate|committee|meeting|person|people|portrait|interview|document|press|rover|lander|aircraft|building|school|earthquake|hurricane|weather|crane|crawler|lightning|protection|system|facility|station|launch|rocket|network|complex|antenna|dish|radio telescope|ground station|observatory|program|update|briefing|official|human|astronaut|politician|director|administrator|spacecraft|space craft|satellite|orbiter|probe|space telescope|telescope|space station|vehicle|capsule|module|shuttle|mission hardware/i;
   let pendingApodReady = false;
 
   function updateSpaceLocation() {
